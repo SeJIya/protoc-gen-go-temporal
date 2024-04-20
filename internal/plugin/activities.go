@@ -420,6 +420,9 @@ func (svc *Manifest) genActivityLocalOptions(f *g.File, activity protoreflect.Fu
 				returnVals.Error()
 			}),
 		g.Id("opts").Op("*").Qual(workflowPkg, "LocalActivityOptions"),
+		g.Id("scheduleToCloseTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("startToCloseTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("retryPolicy").Op("*").Qual(temporalPkg, "RetryPolicy"),
 	)
 
 	// generate New<Activity>LocalActivityOptions method
@@ -472,6 +475,48 @@ func (svc *Manifest) genActivityLocalOptions(f *g.File, activity protoreflect.Fu
 			g.Id("opts").Dot("opts").Op("=").Op("&").Id("options"),
 			g.Return(g.Id("opts")),
 		)
+
+	// generate WithScheduleToCloseTimeout method
+	f.Comment("WithScheduleToCloseTimeout update the ScheduleToCloseTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithScheduleToCloseTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("scheduleToCloseTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithStartToCloseTimeout method
+	f.Comment("WithStartToCloseTimeout update the StartToCloseTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithStartToCloseTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("startToCloseTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithRetryPolicy method
+	f.Comment("WithRetryPolicy update the RetryPolicy field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithRetryPolicy").
+		Params(
+			g.Id("retryPolicy").Qual(temporalPkg, "RetryPolicy"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("retryPolicy").Op("=").Op("&").Id("retryPolicy"),
+			g.Return(g.Id("opts")),
+		)
 }
 
 // genActivityOptions generates an <Activity>ActivityOptions struct
@@ -482,6 +527,13 @@ func (svc *Manifest) genActivityOptions(f *g.File, activity protoreflect.FullNam
 	f.Commentf("%s provides configuration for a(n) %s activity", typeName, svc.fqnForActivity(activity))
 	f.Type().Id(typeName).Struct(
 		g.Id("opts").Op("*").Qual(workflowPkg, "ActivityOptions"),
+		g.Id("taskQueue").Op("*").String(),
+		g.Id("scheduleToCloseTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("scheduleToStartTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("startToCloseTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("heartbeatTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("waitForCancellation").Op("*").Bool(),
+		g.Id("retryPolicy").Op("*").Qual(temporalPkg, "RetryPolicy"),
 	)
 
 	// generate New<Activity>ActivityOptions method
@@ -506,6 +558,104 @@ func (svc *Manifest) genActivityOptions(f *g.File, activity protoreflect.FullNam
 		Op("*").Id(typeName).
 		Block(
 			g.Id("opts").Dot("opts").Op("=").Op("&").Id("options"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithTaskQueue method
+	f.Comment("WithTaskQueue update the taskQueue field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithTaskQueue").
+		Params(
+			g.Id("name").String(),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("taskQueue").Op("=").Op("&").Id("name"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithScheduleToCloseTimeout method
+	f.Comment("WithScheduleToCloseTimeout update the ScheduleToCloseTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithScheduleToCloseTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("scheduleToCloseTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithScheduleToStartTimeout method
+	f.Comment("WithScheduleToStartTimeout update the ScheduleToStartTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithScheduleToStartTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("scheduleToStartTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithStartToCloseTimeout method
+	f.Comment("WithStartToCloseTimeout update the StartToCloseTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithStartToCloseTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("startToCloseTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithHeartbeatTimeout method
+	f.Comment("WithHeartbeatTimeout update the HeartbeatTimeout field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithHeartbeatTimeout").
+		Params(
+			g.Id("d").Qual("time", "Duration"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("heartbeatTimeout").Op("=").Op("&").Id("d"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithWaitForCancellation method
+	f.Comment("WithWaitForCancellation update the WaitForCancellation field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithWaitForCancellation").
+		Params(
+			g.Id("wait").Bool(),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("waitForCancellation").Op("=").Op("&").Id("wait"),
+			g.Return(g.Id("opts")),
+		)
+
+	// generate WithRetryPolicy method
+	f.Comment("WithRetryPolicy update the RetryPolicy field in its activity options")
+	f.Func().
+		Params(g.Id("opts").Op("*").Id(typeName)).
+		Id("WithRetryPolicy").
+		Params(
+			g.Id("retryPolicy").Qual(temporalPkg, "RetryPolicy"),
+		).
+		Op("*").Id(typeName).
+		Block(
+			g.Id("opts").Dot("retryPolicy").Op("=").Op("&").Id("retryPolicy"),
 			g.Return(g.Id("opts")),
 		)
 }
