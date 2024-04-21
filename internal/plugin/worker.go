@@ -599,16 +599,34 @@ func (svc *Manifest) genWorkerWorkflowChildOptions(f *g.File, workflow protorefl
 	typeName := svc.toCamel("%sChildOptions", workflow)
 	constructorName := "New" + typeName
 
+	// generate type definition
 	f.Commentf("%s provides configuration for a %s workflow operation", typeName, svc.fqnForWorkflow(workflow))
 	f.Type().Id(typeName).Struct(
 		g.Id("opts").Op("*").Qual(workflowPkg, "ChildWorkflowOptions"),
+		g.Id("namespace").Op("*").String(),
+		g.Id("workflowID").Op("*").String(),
+		g.Id("taskQueue").Op("*").String(),
+		g.Id("workflowExecutionTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("workflowRunTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("workflowTaskTimeout").Op("*").Qual("time", "Duration"),
+		g.Id("waitForCancellation").Op("*").Bool(),
+		g.Id("workflowIDReusePolicy").Op("*").Qual(enumsPkg, "WorkflowIdReusePolicy"),
+		g.Id("retryPolicy").Op("*").Qual(temporalPkg, "RetryPolicy"),
+		g.Id("cronSchedule").Op("*").String(),
+		g.Id("memo").Map(g.String()).Interface(),
+		g.Id("searchAttributes").Map(g.String()).Interface(),
+		g.Id("parentClosePolicy").Op("*").Qual(enumsPkg, "ParentClosePolicy"),
+		g.Id("versioningIntent").Op("*").Qual(temporalPkg, "VersioningIntent"),
+		g.Id("dataConverter").Op("*").Qual(converterPkg, "DataConverter"),
 	)
 
+	// generate New<Workflow>ChildOptions method
 	f.Commentf("%s initializes a new %s value", constructorName, typeName)
 	f.Func().Id(constructorName).Params().Op("*").Id(typeName).Block(
 		g.Return(g.Op("&").Id(typeName).Values()),
 	)
 
+	// generate WithChildWorkflowOptions method
 	f.Comment("WithChildWorkflowOptions sets the initial client.StartWorkflowOptions")
 	f.Func().
 		Params(g.Id("opts").Op("*").Id(typeName)).

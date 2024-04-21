@@ -22,6 +22,7 @@ import (
 const (
 	activityPkg     = "go.temporal.io/sdk/activity"
 	clientPkg       = "go.temporal.io/sdk/client"
+	converterPkg    = "go.temporal.io/sdk/converter"
 	durationpbPkg   = "google.golang.org/protobuf/types/known/durationpb"
 	enumsPkg        = "go.temporal.io/api/enums/v1"
 	expressionPkg   = "github.com/cludden/protoc-gen-go-temporal/pkg/expression"
